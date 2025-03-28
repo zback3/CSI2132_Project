@@ -1,0 +1,108 @@
+Yo, I made chat create a txt file describing what you need to set the project up. Use it or use your own chatGPT if you need.
+A couple things tho that are important
+- Pretty sure you can use your own database in postgres, (your data will be a bit different but thats fine)
+- But, 
+	1. make sure you change the password in the config in (mine is ReadAdm1n) replace with urs in the app.py file
+		app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:ReadAdm1n@localhost/hotels'
+	2. You have to make sure your schema is called 'Hotel' (or else change every class in the models folder where it has     __table_args__ = {'schema': 'Hotel'}
+	3. The table names in the database and the python files have to match exactly, I changed 3 column names from the database you gave me. In Employee it cant be hotel.address so the last 3 columns are now hotel_address, hotel_city, manager_employee_id.You'll have to rename those in ur pgadmin.
+   
+- Other note, you have to run 'Flask run' to start the backend server, and 'npm start' to start the frontend (do this in different terminals) (the frontend updates automatically, like you dont have to restart if you edit code, but the backend does not)
+- You should be able to edit all data now on the web app, there are no custom error handing though. So it will just error out if you try to add invalid data 
+(ex. if you don't fill in all the fields when creating or editing a value, or if you don't provide exact matches for values that are Foreign Keys it just gives an error)
+- I added other notes to the guide in places where i think might be helpful, but lmk if you need anything else
+
+
+HOTEL MANAGEMENT SYSTEM - DEVELOPER GUIDE
+=========================================
+
+This is a full-stack Hotel Management System built using:
+- Flask (Python) for the backend
+- PostgreSQL for the database
+- React for the frontend
+
+PROJECT STRUCTURE
+-----------------
+.
+├── backend/
+│   ├── app.py                 # Main Flask app
+│   ├── database/              # SQLAlchemy instance
+│   │   └── __init__.py
+│   ├── models/                # All SQLAlchemy models (these define the classes than match to the tables in PostgreSQL)
+│   │   ├── hotel.py
+│   │   ├── room.py
+│   │   ├── customer.py
+│   │   ├── employee.py
+│   │   ├── booking.py
+│   │   └── renting.py
+│   └── routes/                # Flask blueprints for routes (the routes are define to allow the front end to call them to rececive data)
+│       ├── hotel_routes.py
+│       ├── room_routes.py
+│       ├── customer_routes.py
+│       ├── employee_routes.py
+│       └── booking_routes.py
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── HotelManager.jsx
+│   │   │   ├── ChainManager.jsx
+│   │   │   └── ... other managers
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── hotelService.js
+│   │   ├── App.js
+│   │   └── index.js
+│   └── package.json
+
+SETUP INSTRUCTIONS
+------------------
+
+BACKEND:
+1. Create a virtual environment
+   > python -m venv venv
+   > source venv/bin/activate  (or venv\Scripts\activate on Windows)
+
+2. Install dependencies
+   > pip install flask flask-cors flask-sqlalchemy psycopg2
+
+3. Set Flask environment variable:
+   > set FLASK_APP=app.py        (Windows)
+   > export FLASK_APP=app.py     (Mac/Linux)
+
+4. Run Flask app
+   > flask run
+
+FRONTEND:
+1. Navigate to frontend/
+   > cd frontend
+
+2. Install dependencies
+   > npm install
+
+3. Start React app
+   > npm start
+
+BACKEND TECHNICAL NOTES
+-----------------------
+- The Flask app connects to PostgreSQL with schema `Hotel`
+- All models use SQLAlchemy and reflect the table names and columns exactly
+- CORS is enabled with `flask_cors` to allow communication from React (port 3000)
+
+FRONTEND TECHNICAL NOTES
+------------------------
+- Axios is used for all API requests
+- Each feature (e.g., hotels, chains) has its own service and component
+- All form submissions are handled with React state, and results are re-fetched automatically
+
+TESTING
+-------
+You can test the endpoints using Postman or directly from the React frontend.
+Make sure Flask is running at port 5000 and React at port 3000.
+
+COMMON ISSUES
+-------------
+- If you see "Network Error" from Axios, ensure:
+  1. Flask is running on http://localhost:5000
+  2. CORS is enabled in Flask
+  3. Axios baseURL is set to http://localhost:5000
+
