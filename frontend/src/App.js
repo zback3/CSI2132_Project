@@ -8,6 +8,7 @@ import ChainManager from './components/chainManager';
 import EmployeeManager from './components/employeeManager';
 import CustomerManager from './components/customerManager';
 import RoomManager from './components/roomManager';
+import BookingManager from "./components/bookingManager";
 
 const baseURL = "http://localhost:5000";
 
@@ -21,6 +22,7 @@ function App() {
             <EmployeeManager />
             <CustomerManager />
             <RoomManager />
+            <BookingManager />
     </div>
   );
 }

@@ -7,13 +7,13 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:ReadAdm1n@localhost/hotels'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:075002@localhost/hotels'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
 
-from models.hotel import Hotel, Hotel_Phone_Inst, Chain, Chain_Email_Inst, Chain_Phone_Inst
+from models.hotel import Hotel, Hotel_Phone_Inst, Chain, Chain_Email_Inst, Chain_Phone_Inst, Available_Rooms_Per_Area,HotelTotalCapacity
 from models.room import Room, Room_Amenities, Room_Issues
 from models.customer import Customer
 from models.employee import Employee

@@ -27,7 +27,7 @@ def get_booking(booking_ref):
     return booking.to_dict()
 
 @booking_bp.route('/bookings/<int:renting_ref>', methods=['GET'])
-def get_booking(renting_ref):
+def get_renting(renting_ref):
     renting = Booking.query.get(renting_ref)
     if not renting:
         return {"error": "Renting not found"}, 404

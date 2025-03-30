@@ -1,5 +1,7 @@
+from datetime import date, datetime, timedelta
+from sqlalchemy import text
 from flask import Blueprint, request, jsonify
-from models.hotel import Hotel, Hotel_Phone_Inst, Chain, Chain_Email_Inst, Chain_Phone_Inst
+from models.hotel import Available_Rooms_Per_Area, AvailableRoomsView, Hotel, Hotel_Phone_Inst, Chain, Chain_Email_Inst, Chain_Phone_Inst, HotelTotalCapacity
 from database import db
 
 hotel_bp = Blueprint('hotel_bp', __name__)
@@ -150,3 +152,79 @@ def get_chain_phones():
         {"name": p.name, "email": p.email}
         for p in phones
     ])
+
+# ------------------ Views ------------------  
+
+@hotel_bp.route('/hotel_total_capacity', methods=['GET'])
+def get_hotel_total_capacity():
+    hotel_capacity = HotelTotalCapacity.query.all()
+    return jsonify([capacity.to_dict() for capacity in hotel_capacity])
+
+@hotel_bp.route('/available_rooms_city/<city>', methods=['GET'])
+def get_available_city(city):
+    available_rooms = Available_Rooms_Per_Area.query.get((city))
+    if not available_rooms:
+        return {"error": "No available rooms found"}, 404   
+    return available_rooms.to_dict()
+
+@hotel_bp.route('/available_rooms/<city>/<int:min_capacity>/<start_date>/<end_date>', methods=['GET'])
+def get_available_rooms(city, min_capacity, start_date, end_date):
+    try:
+        # Convert string dates to date objects
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        
+        # Validate dates
+        if start_date < date.today():
+            return {"error": "start_date must be today or in the future"}, 400
+        if start_date > end_date:
+            return {"error": "start_date must be before end_date"}, 400
+        
+        # Validate capacity (already converted to int by route converter)
+        if min_capacity < 0:  
+            return {"error": "min_capacity must be a positive integer"}, 400
+
+        # Execute query
+        query = text("""
+            SELECT * FROM "Hotel".get_available_rooms_by_date(
+                :start_date, 
+                :end_date, 
+                :city, 
+                :min_capacity
+            )
+        """)
+        
+        results = db.session.execute(query, {
+            'city': city,
+            'start_date': start_date,
+            'end_date': end_date,
+            'min_capacity': min_capacity
+        })
+        
+        # Convert results to JSON
+        available_rooms = [
+            {
+                'city': row.city,
+                'address': row.address,  # Fixed space before 'address'
+                'room_number': row.room_number,
+                'capacity': row.capacity,
+                'amenities': row.amenities,
+                'price': row.price,
+                'features': {  # Grouped view-related features
+                    'mountain_view': row.mountain_view,
+                    'sea_view': row.sea_view,
+                    'extendable': row.extendable
+                }
+            }
+            for row in results
+        ]
+        
+        if not available_rooms:
+            return {"message": "No available rooms found matching your criteria"}, 200
+        
+        return jsonify(available_rooms)
+        
+    except ValueError:
+        return {"error": "Invalid date format. Use YYYY-MM-DD"}, 400
+    except Exception as e:
+        return {"error": str(e)}, 500
