@@ -3,6 +3,8 @@ import { getBookings, createBooking, updateBooking, createBooking_Room, getBooki
 import { getRooms } from '../services/roomService';
 import { getCustomers } from '../services/customerService';
 
+//TODO: For some reason the customer's name seems to be passed as the customer_id when creating a booking which is preventing the booking from being created.
+//TODO: Change the way the booking_ref is generated to use a short unique ID instead of Date.now().
 const BookingManager = () => {
     // State management
     const [bookings, setBookings] = useState([]);
@@ -14,7 +16,7 @@ const BookingManager = () => {
         start_date: '',
         end_date: '',
         total_price: '',
-        customer_id: '',
+        customer_id: 0,
     });
     const [selectedRooms, setSelectedRooms] = useState([]);
     const [editing, setEditing] = useState(false);
@@ -321,6 +323,7 @@ const BookingManager = () => {
                                 <option value="">Select Customer</option>
                                 {customers.map(customer => (
                                     <option key={customer.customer_ID} value={customer.customer_ID}>
+                                        {/* TODO: This might be causing the issue with the customer_id being passed as the name */}
                                         {customer.first_name} {customer.last_name}
                                     </option>
                                 ))}
