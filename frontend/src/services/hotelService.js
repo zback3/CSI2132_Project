@@ -12,4 +12,4 @@ export const addHotelPhone = (address, city, phoneNumber) =>
 export const deleteHotelPhone = (address, city, phoneNumber) =>
     api.delete(`/hotels/${address}/${city}/phones/${phoneNumber}`);
 export const getAvailableRoomsCity = (city) =>
-    api.get((`/available_rooms/${city}`));
+    api.get((`/available_rooms_city/${city}`));
