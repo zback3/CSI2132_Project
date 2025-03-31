@@ -19,7 +19,7 @@ def create_new_renting():
             customer_id=data['customer_id']
         )
         db.session.add(renting)
-        db.session.flush() 
+        db.session.commit() 
 
         # Add rooms to Rent_Room table
         for room in data['rooms']:
@@ -64,7 +64,7 @@ def create_renting_from_booking(booking_ref):
             customer_id=booking.customer_id
         )
         db.session.add(renting)
-        db.session.flush() 
+        db.session.commit() 
 
         # Copy rooms from Book_Room to Rent_Room
         booked_rooms = Book_Room.query.filter_by(booking_ref=booking_ref).all()

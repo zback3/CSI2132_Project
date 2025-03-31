@@ -58,6 +58,7 @@ const BookingManager = () => {
             getRooms(),
             getCustomers()
           ]);
+          console.log("Customers API Response:", customersRes?.data); // Debug log
           setBookings(bookingsRes?.data || []);
           setAllRooms(roomsRes?.data || []);
           setCustomers(customersRes?.data || []);
@@ -127,6 +128,7 @@ const BookingManager = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log(`Field: ${name}, Value: ${value}`);
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -200,7 +202,7 @@ const BookingManager = () => {
             alert('Maximum stay duration is 14 days');
             return;
           }
-          let booking_ref = Date.now();
+          let booking_ref = Math.floor(Date.now() / 1000);
           // Prepare booking data
           const bookingData = {
             booking_ref,
@@ -322,9 +324,8 @@ const BookingManager = () => {
                             >
                                 <option value="">Select Customer</option>
                                 {customers.map(customer => (
-                                    <option key={customer.customer_ID} value={customer.customer_ID}>
-                                        {/* TODO: This might be causing the issue with the customer_id being passed as the name */}
-                                        {customer.first_name} {customer.last_name}
+                                    <option key={customer.customer_id} value={customer.customer_id}>
+                                        {customer.customer_id}
                                     </option>
                                 ))}
                             </select>

@@ -29,4 +29,4 @@ export const createBooking = async (data) => {
       throw new Error(error.response?.data?.message || 'Failed to update booking');
     }
   };
-export const createBooking_Room = (booking_ref,data) => api.post(`/bookings/${booking_ref}/rooms`, data);
+export const createBooking_Room = (booking_ref,data) => api.post(`/bookings/${booking_ref}/assign_room`, data);
