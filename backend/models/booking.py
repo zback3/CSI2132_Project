@@ -105,16 +105,19 @@ class Check_In(db.Model):
 
     renting_ref = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, nullable=False)
-    booking_ref = db.Column(db.Integer, nullable=False)
+    booking_ref = db.Column(db.Integer, nullable=True)
+    payment = db.Column(db.String, nullable=False) 
 
-    def __init__(self, renting_ref, employee_id, booking_ref):
+    def __init__(self, renting_ref, employee_id, booking_ref, payment):
         self.renting_ref = renting_ref
         self.employee_id = employee_id
         self.booking_ref = booking_ref
+        self.payment = payment
     
     def to_dict(self):
         return {
             'renting_ref': self.renting_ref,
             'employee_id': self.employee_id,
-            'booking_ref': self.booking_ref
+            'booking_ref': self.booking_ref,
+            'payment': self.payment
         }

@@ -7,7 +7,9 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:075002@localhost/hotels'
+dbPassword = 'ReadAdm1n'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres:{dbPassword}@localhost/hotels'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -24,12 +26,15 @@ from routes.room_routes import room_bp
 from routes.customer_routes import customer_bp
 from routes.employee_routes import employee_bp
 from routes.booking_routes import booking_bp
+from routes.check_in_routes import check_in_bp
+
 
 app.register_blueprint(hotel_bp)
 app.register_blueprint(room_bp)
 app.register_blueprint(customer_bp)
 app.register_blueprint(employee_bp)
 app.register_blueprint(booking_bp)
+app.register_blueprint(check_in_bp)
 
 print("Registered Routes:")
 print(app.url_map)

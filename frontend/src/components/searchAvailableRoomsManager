@@ -2,4 +2,4 @@ import react, { useState, useEffect } from "react";
 import { getAvailableRooms } from "../services/hotelService";
 
 function SearchAvailableRoomsManager() {
-    const [rooms, setRooms] = useState([]);
+    const [rooms, setRooms] = useState([])};

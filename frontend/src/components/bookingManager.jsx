@@ -286,7 +286,7 @@ const BookingManager = () => {
             </div>
             ) : (
                 <>
-                    <h2>{editing ? `Edit Booking #${currentBookingRef}` : 'Create New Booking'}</h2>
+                    <h3>{editing ? `Edit Booking #${currentBookingRef}` : 'Create New Booking'}</h3>
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
@@ -413,7 +413,7 @@ const BookingManager = () => {
                         </div>
 
                         <div className="selected-rooms">
-                            <h4>Selected Rooms ({selectedRooms.length})</h4>
+                            <h3>Selected Rooms ({selectedRooms.length})</h3>
                             {selectedRooms.length > 0 ? (
                                 <ul>
                                     {selectedRooms.map(room => (
@@ -447,14 +447,14 @@ const BookingManager = () => {
                     </form>
 
 
-                    <h2>Existing Bookings</h2>
+                    <h3>Existing Bookings</h3>
                     <div className="bookings-list">
                         {bookings && Array.isArray(bookings) ? (
                             bookings.length > 0 ? (
                                 bookings.map(booking => (
                                     booking && (
                                         <div key={booking.booking_ref || Math.random()} className="booking-card">
-                                            <h3>Booking #{booking.booking_ref || 'N/A'}</h3>
+                                            <h4>Booking Ref: {booking.booking_ref || 'N/A'}</h4>
                                             <p>
                                                 Customer: {
                                                     customers.find(c => c.customer_ID === booking.customer_id)?.first_name ||
