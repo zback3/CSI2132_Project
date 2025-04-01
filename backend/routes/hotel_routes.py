@@ -155,10 +155,25 @@ def get_chain_phones():
 
 # ------------------ Views ------------------  
 
+@hotel_bp.route('/available_rooms_per_area', methods=['GET'])
+def get_available_rooms_per_area():
+    try:
+        # Query the view
+        available_rooms = Available_Rooms_Per_Area.query.all()
+        return jsonify([room.to_dict() for room in available_rooms]), 200
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
 @hotel_bp.route('/hotel_total_capacity', methods=['GET'])
 def get_hotel_total_capacity():
-    hotel_capacity = HotelTotalCapacity.query.all()
-    return jsonify([capacity.to_dict() for capacity in hotel_capacity])
+    try:
+        hotel_capacity = HotelTotalCapacity.query.all()
+        return jsonify([capacity.to_dict() for capacity in hotel_capacity]), 200
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
 
 @hotel_bp.route('/available_rooms_city/<city>', methods=['GET'])
 def get_available_city(city):
@@ -166,6 +181,8 @@ def get_available_city(city):
     if not available_rooms:
         return {"error": "No available rooms found"}, 404   
     return available_rooms.to_dict()
+
+
 
 @hotel_bp.route('/available_rooms/<city>/<int:min_capacity>/<start_date>/<end_date>', methods=['GET'])
 def get_available_rooms(city, min_capacity, start_date, end_date):

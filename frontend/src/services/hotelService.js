@@ -7,9 +7,10 @@ export const updateHotel = (address, city, data) => api.put(`/hotels/${address}/
 export const deleteHotel = (address, city) => api.delete(`/hotels/${address}/${city}`);
 
 export const getHotelPhones = (address, city) => api.get(`/hotels/${address}/${city}/phones`);
-export const addHotelPhone = (address, city, phoneNumber) =>
-    api.post(`/hotels/${address}/${city}/phones`, { phone_number: phoneNumber });
-export const deleteHotelPhone = (address, city, phoneNumber) =>
-    api.delete(`/hotels/${address}/${city}/phones/${phoneNumber}`);
-export const getAvailableRoomsCity = (city) =>
-    api.get((`/available_rooms_city/${city}`));
+export const addHotelPhone = (address, city, phoneNumber) => api.post(`/hotels/${address}/${city}/phones`, { phone_number: phoneNumber });
+export const deleteHotelPhone = (address, city, phoneNumber) => api.delete(`/hotels/${address}/${city}/phones/${phoneNumber}`);
+
+export const getAvailableRoomsCity = (city) => api.get((`/available_rooms_city/${city}`));
+
+export const getAvailableRoomsPerArea = () => api.get('/available_rooms_per_area');
+export const getHotelTotalCapacity = () => api.get('/hotel_total_capacity');
