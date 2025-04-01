@@ -152,18 +152,36 @@ def assign_room_to_booking(booking_ref):
         return {"error": "Booking not found"}, 404
 
     data = request.get_json()
-    try:
-        book_room = Book_Room(
-            booking_ref=booking_ref,
-            room_number=data['room_number'],
-            address=data['address'],
-            city=data['city']
-        )
-        db.session.add(book_room)
-        db.session.commit()
-        return book_room.to_dict(), 201
-    except KeyError as e:
-        return {"error": f"Missing field: {str(e)}"}, 400
+
+    # Check if data is a list or a single object
+    if isinstance(data, list):
+        # Handle multiple rooms
+        for room in data:
+            try:
+                book_room = Book_Room(
+                    booking_ref=booking_ref,
+                    room_number=room['room_number'],
+                    address=room['address'],
+                    city=room['city']
+                )
+                db.session.add(book_room)
+            except KeyError as e:
+                return {"error": f"Missing field: {str(e)}"}, 400
+    else:
+        # Handle a single room
+        try:
+            book_room = Book_Room(
+                booking_ref=booking_ref,
+                room_number=data['room_number'],
+                address=data['address'],
+                city=data['city']
+            )
+            db.session.add(book_room)
+        except KeyError as e:
+            return {"error": f"Missing field: {str(e)}"}, 400
+
+    db.session.commit()
+    return {"message": "Room(s) assigned successfully"}, 201
 
 @booking_bp.route('/rentings/<int:renting_ref>/assign_room', methods=['POST'])
 def assign_room_to_renting(renting_ref):
