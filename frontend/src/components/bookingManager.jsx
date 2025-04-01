@@ -25,11 +25,12 @@ const BookingManager = () => {
         minPrice: '',
         maxPrice: '',
         capacity: '',
-        view: ''
+        view: '',
+        city: ''
     });
     const [currentBookingRef, setCurrentBookingRef] = useState(null);
 
-    
+
     // Fetch initial data
     useEffect(() => {
         fetchData();
@@ -52,72 +53,73 @@ const BookingManager = () => {
 
     const fetchData = async () => {
         try {
-          setLoading(true);  // Set loading to true when starting fetch
-          const [bookingsRes, roomsRes, customersRes] = await Promise.all([
-            getBookings(),
-            getRooms(),
-            getCustomers()
-          ]);
-          console.log("Customers API Response:", customersRes?.data); // Debug log
-          setBookings(bookingsRes?.data || []);
-          setAllRooms(roomsRes?.data || []);
-          setCustomers(customersRes?.data || []);
+            setLoading(true);  // Set loading to true when starting fetch
+            const [bookingsRes, roomsRes, customersRes] = await Promise.all([
+                getBookings(),
+                getRooms(),
+                getCustomers()
+            ]);
+            console.log("Customers API Response:", customersRes?.data); // Debug log
+            setBookings(bookingsRes?.data || []);
+            setAllRooms(roomsRes?.data || []);
+            setCustomers(customersRes?.data || []);
         } catch (error) {
-          console.error("Error fetching data:", error);
+            console.error("Error fetching data:", error);
         } finally {
-          setLoading(false);  // Set loading to false when done (whether success or error)
+            setLoading(false);  // Set loading to false when done (whether success or error)
         }
-      };
+    };
 
-      const filterAvailableRooms = () => {
+    const filterAvailableRooms = () => {
         // Return early if required data isn't loaded
         if (!bookings || !allRooms || !formData.start_date || !formData.end_date) {
-          setAvailableRooms([]);
-          return;
+            setAvailableRooms([]);
+            return;
         }
-      
+
         // Safely get booked room keys with null checks at every level
         const bookedRoomKeys = bookings
-          .filter(booking => 
-            booking && 
-            booking.rooms && 
-            booking.start_date && 
-            booking.end_date &&
-            new Date(booking.end_date) >= new Date(formData.start_date) &&
-            new Date(booking.start_date) <= new Date(formData.end_date)
-          )
-          .flatMap(booking => 
-            Array.isArray(booking.rooms) 
-              ? booking.rooms.map(room => 
-                  room && room.room_number && room.address && room.city
-                    ? `${room.room_number}-${room.address}-${room.city}`
-                    : ''
-                ).filter(Boolean)
-              : []
-          );
-      
+            .filter(booking =>
+                booking &&
+                booking.rooms &&
+                booking.start_date &&
+                booking.end_date &&
+                new Date(booking.end_date) >= new Date(formData.start_date) &&
+                new Date(booking.start_date) <= new Date(formData.end_date)
+            )
+            .flatMap(booking =>
+                Array.isArray(booking.rooms)
+                    ? booking.rooms.map(room =>
+                        room && room.room_number && room.address && room.city
+                            ? `${room.room_number}-${room.address}-${room.city}`
+                            : ''
+                    ).filter(Boolean)
+                    : []
+            );
+
         // Filter rooms with all necessary checks
         const filtered = allRooms
-          .filter(room => 
-            room && 
-            room.room_number && 
-            room.address && 
-            room.city &&
-            !bookedRoomKeys.includes(`${room.room_number}-${room.address}-${room.city}`)
-          );
-      
+            .filter(room =>
+                room &&
+                room.room_number &&
+                room.address &&
+                room.city &&
+                !bookedRoomKeys.includes(`${room.room_number}-${room.address}-${room.city}`)
+            );
+
         // Apply additional filters if they exist
         const result = filtered.filter(room => {
-          if (filters.minPrice && room.price < Number(filters.minPrice)) return false;
-          if (filters.maxPrice && room.price > Number(filters.maxPrice)) return false;
-          if (filters.capacity && room.capacity < Number(filters.capacity)) return false;
-          if (filters.view === 'mountain' && !room.mountain_view) return false;
-          if (filters.view === 'sea' && !room.sea_view) return false;
-          return true;
+            if (filters.minPrice && room.price < Number(filters.minPrice)) return false;
+            if (filters.maxPrice && room.price > Number(filters.maxPrice)) return false;
+            if (filters.capacity && room.capacity < Number(filters.capacity)) return false;
+            if (filters.view === 'mountain' && !room.mountain_view) return false;
+            if (filters.view === 'sea' && !room.sea_view) return false;
+            if (filters.city && room.city !== filters.city) return false; // Add city filter
+            return true;
         });
-      
+
         setAvailableRooms(result);
-      };
+    };
 
     const handleFilterChange = (e) => {
         setFilters({
@@ -157,23 +159,23 @@ const BookingManager = () => {
 
     const validateForm = () => {
         const newErrors = {};
-        
+
         if (!formData.start_date) newErrors.start_date = 'Start date is required';
         if (!formData.end_date) newErrors.end_date = 'End date is required';
-        
+
         if (formData.start_date && formData.end_date) {
-          if (new Date(formData.end_date) <= new Date(formData.start_date)) {
-            newErrors.end_date = 'End date must be after start date';
-          }
+            if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+                newErrors.end_date = 'End date must be after start date';
+            }
         }
-        
+
         if (!formData.customer_id) newErrors.customer_id = 'Customer is required';
         if (selectedRooms.length === 0) newErrors.rooms = 'At least one room is required';
         if (selectedRooms.length > 10) newErrors.rooms = 'Maximum 10 rooms per booking';
-        
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-      };
+    };
 
     const calculateTotalPrice = () => {
         if (selectedRooms.length === 0 || !formData.start_date || !formData.end_date) return 0;
@@ -187,30 +189,30 @@ const BookingManager = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Validate form
         if (!validateForm()) return;
-      
+
         try {
-          // Calculate days and validate duration
-          const days = Math.ceil(
-            (new Date(formData.end_date) - new Date(formData.start_date)) / 
-            (1000 * 60 * 60 * 24)
-          );
-          
-          if (days > 14) {
-            alert('Maximum stay duration is 14 days');
-            return;
-          }
-          let booking_ref = Math.floor(Date.now() / 1000);
-          // Prepare booking data
-          const bookingData = {
-            booking_ref,
-            start_date: formData.start_date,
-            end_date: formData.end_date,
-            customer_id: formData.customer_id,
-            total_price: calculateTotalPrice()
-          };
+            // Calculate days and validate duration
+            const days = Math.ceil(
+                (new Date(formData.end_date) - new Date(formData.start_date)) /
+                (1000 * 60 * 60 * 24)
+            );
+
+            if (days > 14) {
+                alert('Maximum stay duration is 14 days');
+                return;
+            }
+            let booking_ref = Math.floor(Date.now() / 1000);
+            // Prepare booking data
+            const bookingData = {
+                booking_ref,
+                start_date: formData.start_date,
+                end_date: formData.end_date,
+                customer_id: formData.customer_id,
+                total_price: calculateTotalPrice()
+            };
 
             // Prepare room data
             const roomData = selectedRooms.map(room => ({
@@ -219,35 +221,35 @@ const BookingManager = () => {
                 address: room.address,
                 city: room.city
             }));
-      
-          // Submit booking
-          let response;
-          let responseRoom;
-          if (editing) {
-            response = await updateBooking(booking_ref, bookingData);
-          } else {
-            response = await createBooking(bookingData);
-          }
-          //Submit room data
-          if (editing) {
-            responseRoom = await createBooking_Room(currentBookingRef, roomData);
-          } else {
-            responseRoom = await createBooking_Room(response.data.booking_ref, roomData);
-          }
-      
-          // Check for successful response
-          if (response && response.data && responseRoom && responseRoom.data) {
-            resetForm();
-            fetchData();
-            alert(editing ? 'Booking updated successfully!' : 'Booking created successfully!');
-          } else {
-            throw new Error('Invalid response from server');
-          }
+
+            // Submit booking
+            let response;
+            let responseRoom;
+            if (editing) {
+                response = await updateBooking(booking_ref, bookingData);
+            } else {
+                response = await createBooking(bookingData);
+            }
+            //Submit room data
+            if (editing) {
+                responseRoom = await createBooking_Room(currentBookingRef, roomData);
+            } else {
+                responseRoom = await createBooking_Room(response.data.booking_ref, roomData);
+            }
+
+            // Check for successful response
+            if (response && response.data && responseRoom && responseRoom.data) {
+                resetForm();
+                fetchData();
+                alert(editing ? 'Booking updated successfully!' : 'Booking created successfully!');
+            } else {
+                throw new Error('Invalid response from server');
+            }
         } catch (error) {
-          console.error("Booking error:", error);
-          alert(`Failed to save booking: ${error.message || 'Please try again'}`);
+            console.error("Booking error:", error);
+            alert(`Failed to save booking: ${error.message || 'Please try again'}`);
         }
-      };
+    };
 
     const handleEdit = (booking) => {
         setFormData({
@@ -283,9 +285,9 @@ const BookingManager = () => {
         <div className="booking-manager">
             {loading ? (
                 <div className="loading-state">
-                <div className="spinner"></div>
-                <p>Loading booking data...</p>
-            </div>
+                    <div className="spinner"></div>
+                    <p>Loading booking data...</p>
+                </div>
             ) : (
                 <>
                     <h3>{editing ? `Edit Booking #${currentBookingRef}` : 'Create New Booking'}</h3>
@@ -378,6 +380,31 @@ const BookingManager = () => {
                                     <option value="mountain">Mountain view</option>
                                     <option value="sea">Sea view</option>
                                 </select>
+                                <select
+                                    name="city"
+                                    value={filters.city}
+                                    onChange={handleFilterChange}
+                                >
+                                    <option value="">All Cities</option>
+                                    {Array.from(new Set(allRooms.map(room => room.city))).map(city => (
+                                        <option key={city} value={city}>{city}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="filter-actions">
+                                <button
+                                    type="button"
+                                    onClick={() => setFilters({
+                                        minPrice: '',
+                                        maxPrice: '',
+                                        capacity: '',
+                                        view: '',
+                                        city: ''
+                                    })}
+                                    className="secondary small"
+                                >
+                                    Clear All Filters
+                                </button>
                             </div>
                         </div>
 
